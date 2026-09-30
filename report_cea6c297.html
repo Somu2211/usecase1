@@ -1,0 +1,184 @@
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Executive Report - cea6c297</title>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <style>
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #f5f5f5;
+                color: #333;
+            }
+            .header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 30px;
+                border-radius: 10px;
+                margin-bottom: 30px;
+            }
+            .header h1 { margin: 0; font-size: 32px; }
+            .header p { margin: 10px 0 0 0; opacity: 0.9; }
+            .section {
+                background: white;
+                padding: 25px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .section h2 {
+                color: #667eea;
+                border-bottom: 3px solid #667eea;
+                padding-bottom: 10px;
+                margin-top: 0;
+            }
+            .answer-section {
+                background: #e8f4f8;
+                padding: 20px;
+                border-radius: 8px;
+                border-left: 4px solid #28a745;
+            }
+            .answer-section p { margin: 0; line-height: 1.6; font-size: 16px; color: #333; }
+            .approach-section { margin: 20px 0; }
+            .approach-section h3 { color: #667eea; font-size: 16px; margin: 20px 0 10px 0; }
+            .code-block {
+                background: #f5f5f5;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                padding: 15px;
+                overflow-x: auto;
+                font-family: 'Courier New', monospace;
+                font-size: 13px;
+                line-height: 1.4;
+                color: #333;
+                margin: 0 0 15px 0;
+            }
+            .code-block code { color: #667eea; }
+            .approach-section p { line-height: 1.6; color: #555; margin: 0 0 15px 0; }
+            .chart-container { margin: 20px 0; }
+            .data-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 14px;
+            }
+            .data-table th {
+                background-color: #667eea;
+                color: white;
+                padding: 10px 12px;
+                text-align: left;
+                font-weight: 600;
+            }
+            .data-table td {
+                padding: 8px 12px;
+                border-bottom: 1px solid #eee;
+                color: #333;
+            }
+            .data-table tr:nth-child(even) td { background-color: #f9f9fb; }
+            .data-table tr:hover td { background-color: #eef0fc; }
+            .insights-section {
+                background: #f9f9fb;
+                padding: 20px;
+                border-radius: 8px;
+                border-left: 4px solid #764ba2;
+                line-height: 1.7;
+                color: #444;
+            }
+            .footer {
+                text-align: center;
+                color: #999;
+                margin-top: 40px;
+                padding-top: 20px;
+                border-top: 1px solid #eee;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>&#128202; Executive Report</h1>
+            <p><strong>Business Question:</strong> I want to see the profits by each individual product and also analyze which product has scope to bring more revenue 
+</p>
+        </div>
+        <div class="section">
+            <h2>&#9989; Answer</h2>
+            
+    <div class="answer-section">
+        <p>Samsung Galaxy S24 is the most profitable product with $9,583.85 in total profit from 50 units sold, followed closely by iPhone 15 with $9,489.67 profit from 54 units. For revenue potential, Samsung Galaxy S24 leads with a revenue potential score of 52,083.35, followed by iPhone 15 (48,427.42), and Dyson Airwrap (22,394.32). The top revenue opportunity products are high-value electronics that combine strong sales volume with healthy profit margins.</p>
+    </div>
+    
+        </div>
+        <div class="section">
+            <h2>&#128202; Approach &amp; Query</h2>
+            
+    <div class="approach-section">
+        <h3>Query Code</h3>
+        <pre class="code-block"><code>
+WITH product_aggregates AS (
+  SELECT 
+    product_id,
+    MAX(product_name) as product_name,
+    SUM(total_quantity_sold) as total_units_sold,
+    SUM(total_quantity_sold * avg_selling_price) / NULLIF(SUM(total_quantity_sold), 0) as weighted_avg_selling_price,
+    MAX(standard_price) as standard_price,
+    SUM(revenue_potential_score) as total_revenue_potential,
+    SUM(transaction_count) as total_transactions
+  FROM product_profit_analysis
+  GROUP BY product_id
+)
+SELECT 
+  product_id,
+  product_name,
+  total_units_sold,
+  ROUND(weighted_avg_selling_price, 2) as avg_selling_price,
+  standard_price,
+  ROUND((weighted_avg_selling_price - standard_price) * total_units_sold, 2) as total_profit,
+  ROUND(weighted_avg_selling_price - standard_price, 2) as profit_per_unit,
+  ROUND(total_revenue_potential, 2) as revenue_potential_score,
+  total_transactions
+FROM product_aggregates
+ORDER BY total_profit DESC
+</code></pre>
+        <h3>Query Description</h3>
+        <p>Used SQL aggregation to GROUP BY product_id, summing total_quantity_sold and calculating weighted average selling prices across all transactions. Total profit was computed as (weighted_avg_selling_price - standard_price) × total_units_sold. Revenue potential scores were summed across all product records to identify products with the highest growth opportunity. Results were ordered by total_profit DESC to rank products by profitability, and separately by revenue_potential_score DESC to identify high-opportunity products.</p>
+    </div>
+    
+        </div>
+        <div class="section">
+            <h2>&#128201; Visual Evidence</h2>
+            <div class="chart-container">
+                <div style="height:450px; width:100%;">                            <div id="chart_1" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("chart_1")) {                    Plotly.newPlot(                        "chart_1",                        [{"hovertemplate":"\u003cb\u003e%{x}\u003c\u002fb\u003e\u003cbr\u003etotal_profit: %{y:,.0f}\u003cbr\u003eproduct_id: %{text}\u003cextra\u003e\u003c\u002fextra\u003e","marker":{"color":"#667eea"},"text":["P002","P001","P015","P010","P018","P004","P009","P019","P008","P007"],"textposition":"outside","x":["Samsung Galaxy S24","iPhone 15","Bowflex Dumbbells","KitchenAid Mixer","Dyson Airwrap","Sony WH-1000XM5","Instant Pot Duo","La Mer Cream","Champion Hoodie","Patagonia Fleece"],"y":{"dtype":"f8","bdata":"zczMzOy3wkApXI\u002fC1YjCQDMzMzMzb3BA4XoUrkfpaECuR+F6FFZoQLgehetRMGhAXI\u002fC9SgcT0AUrkfhevROQK5H4XoUbk5Aj8L1KFxPRkA="},"type":"bar"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"title":{"text":"Top 15 Products by Total Profit"},"xaxis":{"title":{"text":"product_name"}},"yaxis":{"title":{"text":"total_profit"}},"height":450},                        {"responsive": true}                    )                };            </script>        </div>
+<div style="height:450px; width:100%;">                            <div id="chart_2" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("chart_2")) {                    Plotly.newPlot(                        "chart_2",                        [{"hovertemplate":"\u003cb\u003e%{x}\u003c\u002fb\u003e\u003cbr\u003erevenue_potential_score: %{y:,.0f}\u003cbr\u003eproduct_id: %{text}\u003cextra\u003e\u003c\u002fextra\u003e","marker":{"color":"#667eea"},"text":["P002","P001","P018","P004","P003","P011","P010","P015","P007","P012"],"textposition":"outside","x":["Samsung Galaxy S24","iPhone 15","Dyson Airwrap","Sony WH-1000XM5","AirPods Pro","Vitamix Blender","KitchenAid Mixer","Bowflex Dumbbells","Patagonia Fleece","Nespresso Machine"],"y":{"dtype":"f8","bdata":"MzMzM2tu6UAK16NwbaXnQK5H4XqU3tVA9ihcj6IfzUAAAAAAQKTFQFyPwvUIQMFAuB6F6xHbvkApXI\u002fCtSa9QJqZmZmZSbJAKVyPwrVCsUA="},"type":"bar"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"title":{"text":"Top 15 Products by Revenue Potential Score"},"xaxis":{"title":{"text":"product_name"}},"yaxis":{"title":{"text":"revenue_potential_score"}},"height":450},                        {"responsive": true}                    )                };            </script>        </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>&#128196; Query Results</h2>
+            
+    <div style="overflow-x:auto">
+      <table class="data-table">
+        <thead><tr><th>product_id</th><th>product_name</th><th>total_units_sold</th><th>avg_selling_price</th><th>standard_price</th><th>total_profit</th><th>profit_per_unit</th><th>revenue_potential_score</th><th>total_transactions</th></tr></thead>
+        <tbody><tr><td>P002</td><td>Samsung Galaxy S24</td><td>50.00</td><td>1,041.67</td><td>849.99</td><td>9,583.85</td><td>191.68</td><td>52,083.35</td><td>10.00</td></tr><tr><td>P001</td><td>iPhone 15</td><td>54.00</td><td>1,175.72</td><td>999.99</td><td>9,489.67</td><td>175.73</td><td>48,427.42</td><td>8.00</td></tr><tr><td>P015</td><td>Bowflex Dumbbells</td><td>24.00</td><td>310.95</td><td>299.99</td><td>262.95</td><td>10.96</td><td>7,462.71</td><td>4.00</td></tr><tr><td>P010</td><td>KitchenAid Mixer</td><td>22.00</td><td>359.05</td><td>349.99</td><td>199.29</td><td>9.06</td><td>7,899.07</td><td>5.00</td></tr><tr><td>P018</td><td>Dyson Airwrap</td><td>37.00</td><td>605.25</td><td>599.99</td><td>194.69</td><td>5.26</td><td>22,394.32</td><td>12.00</td></tr><tr><td>P004</td><td>Sony WH-1000XM5</td><td>56.00</td><td>353.45</td><td>349.99</td><td>193.51</td><td>3.46</td><td>14,911.27</td><td>12.00</td></tr><tr><td>P009</td><td>Instant Pot Duo</td><td>13.00</td><td>94.78</td><td>89.99</td><td>62.22</td><td>4.79</td><td>1,232.09</td><td>2.00</td></tr><tr><td>P019</td><td>La Mer Cream</td><td>23.00</td><td>197.69</td><td>195.00</td><td>61.91</td><td>2.69</td><td>4,346.39</td><td>8.00</td></tr><tr><td>P008</td><td>Champion Hoodie</td><td>45.00</td><td>51.34</td><td>49.99</td><td>60.86</td><td>1.35</td><td>2,310.41</td><td>8.00</td></tr><tr><td>P007</td><td>Patagonia Fleece</td><td>30.00</td><td>151.48</td><td>149.99</td><td>44.62</td><td>1.49</td><td>4,681.60</td><td>8.00</td></tr><tr><td>P012</td><td>Nespresso Machine</td><td>23.00</td><td>200.98</td><td>199.99</td><td>22.80</td><td>0.99</td><td>4,418.71</td><td>12.00</td></tr><tr><td>P016</td><td>CamelBak Water Bottle</td><td>37.00</td><td>30.45</td><td>29.99</td><td>16.93</td><td>0.46</td><td>1,134.30</td><td>11.00</td></tr><tr><td>P017</td><td>CeraVe Moisturizer</td><td>34.00</td><td>16.72</td><td>16.99</td><td>-9.23</td><td>-0.27</td><td>413.73</td><td>9.00</td></tr><tr><td>P013</td><td>Peloton Mat</td><td>35.00</td><td>39.39</td><td>39.99</td><td>-21.01</td><td>-0.60</td><td>1,061.12</td><td>8.00</td></tr><tr><td>P020</td><td>Neutrogena SPF 50</td><td>35.00</td><td>12.36</td><td>12.99</td><td>-22.04</td><td>-0.63</td><td>432.61</td><td>9.00</td></tr><tr><td>P005</td><td>Levi's 501 Jeans</td><td>51.00</td><td>69.21</td><td>69.99</td><td>-39.54</td><td>-0.78</td><td>3,298.14</td><td>11.00</td></tr><tr><td>P014</td><td>TRX Resistance Bands</td><td>64.00</td><td>59.06</td><td>59.99</td><td>-59.34</td><td>-0.93</td><td>3,360.02</td><td>13.00</td></tr><tr><td>P006</td><td>Nike Air Max</td><td>35.00</td><td>117.66</td><td>119.99</td><td>-81.53</td><td>-2.33</td><td>4,205.90</td><td>8.00</td></tr><tr><td>P011</td><td>Vitamix Blender</td><td>20.00</td><td>442.70</td><td>449.99</td><td>-145.89</td><td>-7.29</td><td>8,832.07</td><td>8.00</td></tr><tr><td>P003</td><td>AirPods Pro</td><td>45.00</td><td>243.78</td><td>249.99</td><td>-279.50</td><td>-6.21</td><td>11,080.50</td><td>12.00</td></tr></tbody>
+      </table>
+    </div>
+    
+        </div>
+        <div class="section">
+            <h2>&#128270; Key Insights</h2>
+            <div class="insights-section">
+                The product profitability analysis reveals a clear bifurcation in the portfolio. Premium electronics dominate both profit generation and revenue potential: Samsung Galaxy S24 ($9,583.85 profit, 52,083.35 revenue potential) and iPhone 15 ($9,489.67 profit, 48,427.42 revenue potential) together account for over $19,000 in profit from just 104 units sold. These products command strong profit margins of $191.68 and $175.73 per unit respectively, demonstrating successful premium pricing strategies. The Dyson Airwrap, while generating modest profit ($194.69), shows exceptional revenue potential (22,394.32) with 37 units sold, suggesting significant opportunity for volume expansion in the beauty category.
+
+The mid-tier performers include fitness equipment (Bowflex Dumbbells: $262.95 profit) and home appliances (KitchenAid Mixer: $199.29 profit), which maintain positive margins but at lower volumes. However, a concerning pattern emerges in the loss-making segment: AirPods Pro leads losses at -$279.50 despite 45 units sold and a high revenue potential score of 11,080.50, indicating the product is priced below cost but has strong market demand. Similarly, Vitamix Blender (-$145.89 loss, 8,832.07 revenue potential) and Nike Air Max (-$81.53 loss, 4,205.90 revenue potential) show negative profitability despite market interest, suggesting immediate pricing corrections are needed.
+
+Strategic recommendations focus on three areas: First, maximize revenue from proven winners by increasing marketing investment in Samsung Galaxy S24, iPhone 15, and Dyson Airwrap, which show both profitability and high revenue potential. Second, urgently address pricing for loss-making products - AirPods Pro, Vitamix Blender, and Nike Air Max have strong revenue potential scores but negative margins, indicating they're underpriced relative to costs. Third, evaluate the portfolio's lower performers (CeraVe Moisturizer, Peloton Mat, Neutrogena SPF 50) which show both low profitability and low revenue potential, potentially candidates for discontinuation or repositioning. The revenue potential metric suggests focusing growth investments on the top 5 products (Samsung Galaxy S24, iPhone 15, Dyson Airwrap, Sony WH-1000XM5, and AirPods Pro after pricing correction) which collectively represent over $147,000 in revenue opportunity.
+            </div>
+        </div>
+        <div class="footer">
+            <p>Generated by IDAMP (Intent-Driven Agentic Medallion Pipeline)</p>
+            <p>Report Date: 2026-09-30 16:12:09</p>
+        </div>
+    </body>
+    </html>
+    
